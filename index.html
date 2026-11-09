@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Portfólio — UX/UI Designer</title>
+<link rel="icon" type="image/png" sizes="64x64" href="img/favicon.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Mrs+Saint+Delafield&display=swap" rel="stylesheet">
@@ -271,6 +273,24 @@ body.on-dark .lang button[aria-pressed="true"] { background: #fff; color: #2a167
 .nav__cta { font-weight: 600; font-size: 16px; padding-right: clamp(0px,4vw,70px); white-space: nowrap; }
 .nav, .badge { transition: color .5s ease; }
 body.on-dark .nav, body.on-dark .badge { color: #fff; }
+/* liquid glass behind the nav once the page is scrolled, so the links stay readable over content */
+.nav::before { content: ""; position: absolute; z-index: -1; top: 8px; bottom: -8px; left: calc(var(--pad) - 16px); right: calc(var(--pad) - 16px); border-radius: 99px; pointer-events: none;
+  background: linear-gradient(160deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,.22) 100%);
+  border: 1px solid rgba(255,255,255,.6);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9), inset 0 -1px 0 rgba(255,255,255,.25), 0 14px 34px -18px rgba(50,20,130,.35);
+  -webkit-backdrop-filter: blur(18px) saturate(1.8); backdrop-filter: blur(18px) saturate(1.8);
+  opacity: 0; transform: translateY(-6px) scale(.98); transition: opacity .4s ease, transform .4s cubic-bezier(.2,.8,.2,1), background .5s ease, border-color .5s ease; }
+.nav.is-scrolled::before { opacity: 1; transform: none; }
+body.on-dark .nav::before { background: linear-gradient(160deg, rgba(40,22,110,.5) 0%, rgba(20,10,60,.3) 100%); border-color: rgba(255,255,255,.18); box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 14px 34px -18px rgba(0,0,0,.5); }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .nav::before { background: rgba(240,236,255,.94); }
+  body.on-dark .nav::before { background: rgba(28,16,80,.92); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .nav::before { background: rgba(240,236,255,.97); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  body.on-dark .nav::before { background: rgba(28,16,80,.96); }
+}
+@media (prefers-reduced-motion: reduce) { .nav::before { transform: none; } }
 
 /* BADGE */
 .badge { position: fixed; z-index: 30; right: var(--pad); bottom: 22px; display: flex; align-items: center; gap: 10px; font-size: 12.5px; font-weight: 500; line-height: 1; color: #2b2550; }
@@ -429,7 +449,9 @@ section { position: relative; min-height: 100vh; height: 100vh; overflow: hidden
 /* 03 — PROCESSO */
 .s3 { background: linear-gradient(180deg, #ece9fc 0%, #e7e3fb 100%); z-index: 1; }
 .s3 .flower--passion { width: clamp(360px,42vw,760px); left: -10vw; top: 6vh; transform-origin: 40% 50%; }
-.s3 .text { position: absolute; left: 54vw; top: 20vh; width: min(500px,40vw); }
+/* centred vertically (below the nav) so the last row of steps is never clipped on short screens */
+.s3 .text { position: absolute; left: 54vw; top: calc(50% + 30px); transform: translateY(-50%); width: min(500px,40vw); }
+.s3 .num { font-size: clamp(90px, min(15vw, 24vh), 250px); }
 .s3 .title { margin-top: 24px; }
 .steps { list-style: none; margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px 28px; }
 .steps li { font-size: 13.5px; line-height: 1.5; color: var(--muted); }
@@ -576,7 +598,7 @@ section { position: relative; min-height: 100vh; height: 100vh; overflow: hidden
   .sign { margin-top: 10px; font-size: 40px; }
   .hero .flower--cosmos { width: 92vw; left: -34vw; bottom: -66vw; }
   .s1 .num { top: 14vh; left: auto; right: 6vw; }
-  .s3 .text { left: 18px; right: 18px; width: auto; top: auto; bottom: 10vh; }
+  .s3 .text { left: 18px; right: 18px; width: auto; top: auto; bottom: 10vh; transform: none; }
   .clients { padding: 13vh 0 9vh; gap: 64px; }
   .clients .text { margin: 0 18px; width: auto; }
   .clients .copy { margin-top: 14px; }
@@ -1021,6 +1043,7 @@ const io = new IntersectionObserver(es => es.forEach(e => {
 sections.forEach(s => io.observe(s));
 
 const parallax = [...document.querySelectorAll("[data-speed]")];
+const nav = document.querySelector(".nav");
 function onScroll() {
   for (const el of parallax) {
     const sec = el.closest("section");
@@ -1031,6 +1054,7 @@ function onScroll() {
   const y = innerHeight * .06;
   const active = sections.find(s => { const r = s.getBoundingClientRect(); return r.top <= y && r.bottom > y; });
   document.body.classList.toggle("on-dark", !!active && active.dataset.theme === "dark");
+  nav.classList.toggle("is-scrolled", scrollY > 24);
 }
 addEventListener("scroll", onScroll, { passive: true });
 addEventListener("resize", onScroll);
