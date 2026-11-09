@@ -18,7 +18,7 @@ window.SITE = {
   name: "Isadora Maiara",                             // seu nome completo
   role: { pt: "UX/UI & Product Designer", en: "UX/UI & Product Designer" }, // sua profissão
   photo: "foto.jpg",             // caminho da sua foto, ex: "foto.jpg" (deixe "" para mostrar as iniciais)
-  email: "isadoraperry12@gmail.com",   // usado no pedido de senha dos projetos protegidos
+  email: "isadoraperry12@gmail.com",   // usado no botão "Vamos conversar" (o pedido de senha vai pelo WhatsApp dos links abaixo)
   // Botões de contato do rodapé. Troque pelos seus links:
   //  - LinkedIn: o endereço do seu perfil
   //  - WhatsApp: https://wa.me/ + DDI + DDD + número, só dígitos (ex: https://wa.me/5511999999999)
@@ -756,8 +756,8 @@ const T = {
     "modal.lockedText": "Este case contém informações confidenciais. Digite a senha para continuar.",
     "modal.placeholder": "Senha", "modal.unlock": "Desbloquear", "modal.wrong": "Senha incorreta. Tente novamente.",
     "modal.insecure": "Abra o site por https (ou localhost) para desbloquear.",
-    "modal.ask": "Não tem a senha?", "modal.askLink": "Peça por e-mail", "modal.view": "Ver case completo",
-    "mail.subject": "Senha do portfólio", "title": "Portfólio"
+    "modal.ask": "Não tem a senha?", "modal.askLink": "Peça pelo WhatsApp", "modal.view": "Ver case completo",
+    "wa.password": "Olá, Isadora! Vi seu portfólio e gostaria da senha para ver o case", "title": "Portfólio"
   },
   en: {
     "nav.about": "About", "nav.work": "Work", "nav.process": "Process", "nav.contact": "Contact", "nav.cta": "Say hello",
@@ -786,8 +786,8 @@ const T = {
     "modal.lockedText": "This case study contains confidential information. Enter the password to continue.",
     "modal.placeholder": "Password", "modal.unlock": "Unlock", "modal.wrong": "Wrong password. Please try again.",
     "modal.insecure": "Open the site over https (or localhost) to unlock.",
-    "modal.ask": "Don't have the password?", "modal.askLink": "Ask me by email", "modal.view": "View full case study",
-    "mail.subject": "Portfolio password", "title": "Portfolio"
+    "modal.ask": "Don't have the password?", "modal.askLink": "Ask me on WhatsApp", "modal.view": "View full case study",
+    "wa.password": "Hi Isadora! I saw your portfolio and would like the password for the case study", "title": "Portfolio"
   }
 };
 const store = {
@@ -824,6 +824,9 @@ const avatar = document.getElementById("avatar");
 avatar.innerHTML = SITE.photo ? `<img src="${esc(SITE.photo)}" alt="${esc(SITE.name)}">` : `<span>${esc(initials)}</span>`;
 const mailto = (subject) => `mailto:${SITE.email}${subject ? "?subject=" + encodeURIComponent(subject) : ""}`;
 document.getElementById("mailBtn").href = mailto();
+// WhatsApp link from SITE.links, with a pre-filled message
+const waBase = (SITE.links.find(([, u]) => /wa\.me/.test(u)) || [])[1] || "";
+const whatsapp = (text) => waBase ? `${waBase}?text=${encodeURIComponent(text)}` : mailto(text);
 document.getElementById("moreBtn").href = SITE.moreProjects || "#";
 // Footer contact links (bottom right). WhatsApp opens with a greeting in the current language.
 function renderContacts() {
@@ -937,7 +940,7 @@ function renderModal() {
           <button class="btn" type="submit">${t("modal.unlock")}</button>
         </div>
         <div class="err" id="pwErr" role="alert"></div>
-        <div class="hint">${t("modal.ask")} <a href="${mailto(t("mail.subject") + " — " + p.title[lang])}">${t("modal.askLink")}</a></div>
+        <div class="hint">${t("modal.ask")} <a href="${esc(whatsapp(t("wa.password") + " " + p.title[lang] + "."))}" target="_blank" rel="noopener">${t("modal.askLink")}</a></div>
       </form>`;
   }
   mBody.innerHTML = html;
